@@ -42,16 +42,20 @@ se usaba).
 ## Estructura de salida
 
 ```
-output/<video_id>/
-    video.wav               # audio original descargado
-    vocals.wav              # voz aislada (solo con --limpiar)
-    principal.wav           # solo hablante principal (solo con --diarizar)
-    frases.json             # frases + tiempos + rutas de clips + metadatos
+output/<título saneaizado>__<video_id>/
+    <título saneaizado>.wav   # audio original descargado
+    vocals.wav               # voz aislada (solo con --limpiar)
+    principal.wav            # solo hablante principal (solo con --diarizar)
+    frases.json              # frases + tiempos + rutas de clips + metadatos
     clips/
         frase_0001.mp3
         frase_0002.mp3
         ...
 ```
+
+El directorio combina título + video_id (legible, único y sin colisiones); el
+WAV usa solo el título. Si no se obtiene el título, se cae al esquema por
+video_id: `output/<video_id>/video.wav`.
 
 ## Flujo (6 fases)
 
@@ -68,17 +72,18 @@ output/<video_id>/
 
 ### Fase 1 — Descargar audio (yt-dlp)
 
-Sin cambios respecto a `_test.py`:
-
-1. `extraer_video_id(url)` — regex para el ID de 11 caracteres.
-2. `ruta_ffmpeg()` — llama a `static_ffmpeg.add_paths(weak=True)` y devuelve el
+1. `extract_video_id(url)` — regex para el ID de 11 caracteres.
+2. `fetch_title(url)` — `yt-dlp --print "%(title)s"` para obtener el título
+   (solo metadata) y `sanitize_title(titulo)` para dejarlo seguro como nombre
+   de archivo (quita `/\:*?"<>|`, colapsa espacios, recorta a ~80 chars).
+3. `ruta_ffmpeg()` — llama a `static_ffmpeg.add_paths(weak=True)` y devuelve el
    directorio del binario (None si hay ffmpeg de sistema).
-3. `descargar_audio(url, video.wav)`:
+4. `download_audio(url, <título>.wav)`:
    ```
-   yt-dlp -x --audio-format wav -o <carpeta>/video.%(ext)s URL
+   yt-dlp -x --audio-format wav -o <carpeta>/<título>.%(ext)s URL
           [--ffmpeg-location <dir estático>]
    ```
-4. Si yt-dlp nombró distinto, se busca `*.wav` en la carpeta y se renombra.
+5. Si yt-dlp nombró distinto, se busca `*.wav` en la carpeta y se renombra.
 
 ---
 
