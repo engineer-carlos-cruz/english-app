@@ -1,0 +1,7 @@
+yt-dlp
+static-ffmpeg
+# demucs arrastra torch/torchaudio desde PyPI (wheels CUDA, ~2.5 GB).
+# Para la CPU, instálalos antes con:
+#   pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+demucs
+numpy

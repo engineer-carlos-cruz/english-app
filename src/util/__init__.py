@@ -1,0 +1,1 @@
+"""util: métodos auxiliares que utilizan directamente librerías externas."""
